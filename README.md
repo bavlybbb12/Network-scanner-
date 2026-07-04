@@ -103,5 +103,3 @@ Nmap Integration: Potentially wrap python-nmap into the script for deep-dive vul
 Enhancing how network data is stored and shared.
 
 CSV Export: Add an option to export scan results to a .csv format for easy importing into Excel or network administration spreadsheets.
-
-SQLite Database: Migrate from JSON files to a lightweight SQLite database for faster querying and better handling of large amounts of historical network data.
