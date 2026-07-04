@@ -1,67 +1,107 @@
-# Network Scanner with Dashboard
+Python Network Scanner
+A lightweight, Python-based network scanning tool that uses the Address Resolution Protocol (ARP) to discover active devices on a local area network (LAN). It retrieves IP addresses, MAC addresses, resolves the hardware manufacturer (vendor), and exports the results to a structured JSON file.
 
-A Python tool that scans your local network, identifies connected devices, and displays them in a simple live web dashboard — built as hands-on practice alongside networking studies (CS50, Google's *Bits and Bytes of Computer Networking*, and NTI's Cisco Networking Academy courses).
+Features
+ARP Discovery: Broadcasts ARP requests at Layer 2 to accurately identify active devices on the subnet.
 
-## What It Does
+MAC Vendor Resolution: Automatically looks up the manufacturer of the discovered network interface cards.
 
-* Sends ARP requests across the local subnet to discover every active device
-* Resolves each device's MAC address to a manufacturer name (e.g. "Apple," "TP-Link")
-* Displays the results in a clean web dashboard — IP address, MAC address, and vendor for every device currently on the network
+JSON Export: Saves scan results into a formatted network_devices.json file for historical logging or integration with other applications.
 
-This is a live snapshot tool: each time the dashboard is loaded, it runs a fresh scan and shows what is currently connected. It does not store scan history.
+Terminal Output: Prints a clean, tab-separated table of discovered devices directly to the console.
 
-## Tech Stack
+Prerequisites
+This script requires Python 3.x and the following system-level driver for packet manipulation:
 
-* **Python 3**
-* [**Scapy**](https://scapy.net/) — sends ARP requests and captures replies for device discovery
-* [**mac-vendor-lookup**](https://pypi.org/project/mac-vendor-lookup/) — resolves MAC address prefixes to manufacturer names
-* **Flask** — serves the web dashboard
+Windows Users: You must install Npcap to allow Scapy to send and sniff packets at Layer 2.
 
-## Setup
+Download it from npcap.com.
 
-```bash
-# Clone the repository
-git clone https://github.com/bavlybbb12/network-scanner.git
-cd network-scanner
+During installation, ensure you check the box for "Install Npcap in WinPcap API-compatible Mode".
 
-# Create a virtual environment (recommended)
-python3 -m venv venv
-source venv/bin/activate   # on Windows: venv\\Scripts\\activate
+Installation
+Clone or download this repository to your local machine.
 
-# Install dependencies
-pip install -r requirements.txt
-```
+Open your terminal or command prompt in the project directory.
 
-**Note:** Scapy requires elevated privileges to send raw ARP packets.
+Install the required Python libraries using pip:
 
-```bash
-# Linux / macOS
-sudo python3 app.py
+Bash
+pip install scapy mac-vendor-lookup
+Usage
+Open scanner.py in your code editor.
 
-# Windows — run your terminal as Administrator, then:
-python app.py
-```
+Scroll to the bottom of the script and locate the target_ip variable in the execution block.
 
-## Usage
+Update this variable to match your local network's subnet (e.g., 192.168.1.1/24, 10.0.0.1/24, etc.).
 
-1. Run the app as shown above
-2. Open `http://127.0.0.1:5000` in your browser
-3. The dashboard will run a live scan of your local subnet and display all connected devices
+Python
+if __name__ == "__main__":
+    # Update this to match your actual network subnet
+    target_ip = "192.168.1.1/24" 
+Run the script from your terminal:
 
-## Important — Use Responsibly
+Bash
+python scanner.py
+Output
+The script will output a table of found devices to your terminal:
 
-This tool only scans the local network it is run from. **Only run it on networks you own or have explicit permission to scan** — such as your home Wi-Fi. Scanning networks you do not have permission to scan (university networks, public Wi-Fi, workplace networks without authorization) is not appropriate and may violate network usage policies.
+Plaintext
+Scanning 192.168.1.1/24...
 
-## Roadmap
+IP Address              MAC Address             Vendor
+-----------------------------------------------------------------
+192.168.1.1             a1:b2:c3:d4:e5:f6       Cisco Systems, Inc
+192.168.1.15            12:34:56:78:90:ab       Apple, Inc.
+It will also automatically generate a file named network_devices.json in the same directory, structured like this:
 
-* \[ ] Store scan history in a database and detect newly connected devices
-* \[ ] Add device hostname resolution
-* \[ ] Auto-refresh the dashboard on an interval instead of only on page load
+JSON
+[
+    {
+        "ip": "192.168.1.1",
+        "mac": "a1:b2:c3:d4:e5:f6",
+        "vendor": "Cisco Systems, Inc"
+    },
+    {
+        "ip": "192.168.1.15",
+        "mac": "12:34:56:78:90:ab",
+        "vendor": "Apple, Inc."
+    }
+]
 
-## About
+Future Roadmap
+This project is actively being developed. Below is a detailed breakdown of planned features and upgrades that will transform this script from a simple command-line tool into a comprehensive network management dashboard.
 
-Built as part of a self-directed networking and backend engineering learning path, ahead of a networking internship.
+1. Web-Based Dashboard (Flask Integration)
+Transitioning the terminal output to an interactive, browser-based graphical user interface (GUI).
 
-**Bavly Toma**
-[GitHub](https://github.com/bavlybbb12) · [LinkedIn](https://www.linkedin.com/in/bavly-toma)
+Local Web Server: Utilize Flask to serve a lightweight local application.
 
+Dynamic Frontend: Use HTML, CSS, and Bootstrap/Tailwind to create a clean, responsive table that automatically loads data from the network_devices.json file.
+
+Trigger Scans via UI: Add a "Scan Network" button on the dashboard that triggers the backend Python script and refreshes the page with the latest data without needing to touch the terminal.
+
+2. Continuous Monitoring & Alerting
+Upgrading the script to run as a background service (daemon) to act as a localized Intrusion Detection System (IDS).
+
+Historical Database: Shift from a single JSON overwrite to appending scans, creating a historical log of when specific devices join or leave the network.
+
+Rogue Device Detection: Implement logic to compare current scan results against a "whitelist" of known MAC addresses.
+
+Automated Alerts: Integrate webhooks (like Discord, Slack, or simple Email SMTP) to instantly notify the network admin if an unrecognized or unauthorized MAC address connects to the subnet.
+
+3. Layer 4 Port Scanning
+Expanding the scanner's capabilities beyond Layer 2 (ARP) discovery to actively probe discovered devices for open communication ports.
+
+Socket Connections: Use Python's built-in socket library to attempt connections on common ports (e.g., 22 SSH, 80 HTTP, 443 HTTPS).
+
+Service Identification: Map open ports to their associated services to get a better idea of what the device is (e.g., finding port 80 open might indicate a router's admin panel or a local web server).
+
+Nmap Integration: Potentially wrap python-nmap into the script for deep-dive vulnerability scanning on specific target IPs.
+
+4. Data Logging and Export Options
+Enhancing how network data is stored and shared.
+
+CSV Export: Add an option to export scan results to a .csv format for easy importing into Excel or network administration spreadsheets.
+
+SQLite Database: Migrate from JSON files to a lightweight SQLite database for faster querying and better handling of large amounts of historical network data.
