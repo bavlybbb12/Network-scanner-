@@ -62,3 +62,10 @@ Once the terminal displays [+] Admin privileges confirmed. Starting local server
 Plaintext
 http://127.0.0.1:5000
 Your local network range will be automatically suggested in the input box. Click Scan Network to refresh the view with active network targets.
+
+## Usage
+
+```bash
+python3 app.py
+```
+
